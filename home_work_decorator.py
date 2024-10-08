@@ -8,17 +8,19 @@
 def requires_permission(permission):
     def decor(func):
         def wrapper(user):
-            if permission == user:
-                print(f'[{user}] Вы администратор, доступ разрешен')
-            else:
+            if permission != user:
                 print('Доступ закрыт')
-                return func(user)
+                print(func(user))
+            else:
+                print(f'[{user}] Вы администратор, доступ разрешен')
         return wrapper
     return decor
 
 @requires_permission('admin')
 def delete_user(user_id):
     return f'User [{user_id}] deleted'
+
+delete_user('admin')
 
 
 
