@@ -32,12 +32,12 @@ def to_string(func):
     def wrapper():
         result = func()
         if type(result) == str:
-            print(func())
             print(type(result))
+            return func()
         else:
             result = str(result)
-            print(func())
             print(type(result))
+            return func()
     return wrapper
 
 @to_string
@@ -48,5 +48,5 @@ def get_number():
 def get_text():
     return "Hello, World!"
 
-get_number()
-get_text()
+print(get_number())
+print(get_text())
