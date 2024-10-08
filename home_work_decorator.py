@@ -24,3 +24,29 @@ delete_user('admin')
 
 
 
+""" Задача 2: Декоратор для преобразования результата.
+Создайте декоратор, который преобразует результат функции в строку. Если результат уже строка, он должен возвращаться без изменений."""
+
+
+def to_string(func):
+    def wrapper():
+        result = func()
+        if type(result) == str:
+            print(func())
+            print(type(result))
+        else:
+            result = str(result)
+            print(func())
+            print(type(result))
+    return wrapper
+
+@to_string
+def get_number():
+    return 42
+
+@to_string
+def get_text():
+    return "Hello, World!"
+
+get_number()
+get_text()
