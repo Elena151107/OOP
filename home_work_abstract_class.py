@@ -16,7 +16,7 @@
 from abc import ABC, abstractmethod
 
 class Employee(ABC):
-    def __init__(self, name, role=None, count_tasks=0):
+    def __init__(self, name, role=None, count_tasks=[]):
         self.name = name
         self.role = role
         self.count_tasks = count_tasks
@@ -25,12 +25,21 @@ class Employee(ABC):
     def work(self):
         pass
 
+    def add_tasks(self, *args):
+        for arg in args:
+            for elem in arg.tasks:
+                self.count_tasks.append(elem)
+            if isinstance(arg, Task):
+                if self.name not in arg.employees:
+                    arg.employees.append(self.name)
+            print(arg)
+
     def __eq__(self, other):
-        return self.count_tasks == other.count_tasks
+        return len(self.count_tasks) == len(other.count_tasks)
     def __gt__(self, other):
-        return self.count_tasks > other.count_tasks
+        return len(self.count_tasks) > len(other.count_tasks)
     def __lt__(self, other):
-        return self.count_tasks < other.count_tasks
+        return len(self.count_tasks) < len(other.count_tasks)
 
 class Developer(Employee):
     def __init__(self, name, role='developer', task=None):
@@ -43,11 +52,6 @@ class Developer(Employee):
     def work(self):
         print(f'Сотрудник {self.name} - {self.role}. Функции: {self.task}')
 
-    def add_tasks(self, *args):
-        if args is not None and args not in self.count_tasks:
-            self.count_tasks += args
-            return len(self.count_tasks)
-
 class Tester(Employee):
     def __init__(self, name, role='tester', task=None):
         super().__init__(name, role)
@@ -59,11 +63,6 @@ class Tester(Employee):
     def work(self):
         print(f'Сотрудник {self.name} - {self.role}. Функции: {self.task}')
 
-    def add_tasks(self, *args):
-        if args is not None and args not in self.count_tasks:
-            self.count_tasks += args
-        return len(self.count_tasks)
-
 class Manager(Employee):
     def __init__(self, name, role='manager', task=None):
         super().__init__(name, role)
@@ -74,11 +73,6 @@ class Manager(Employee):
 
     def work(self):
         print(f'Сотрудник {self.name} - {self.role}. Функции: {self.task}')
-      
-    def add_tasks(self, *args):
-        if args is not None and args not in self.count_tasks:
-            self.count_tasks += args
-        return len(self.count_tasks)
 
 class LeadDeveloper(Developer, Manager):
     def __init__(self, name, role='leadDeveloper', task=None):
@@ -88,107 +82,77 @@ class LeadDeveloper(Developer, Manager):
         self.task = self.task_man + ', ' + self.task_dev
         self.count_tasks = []
 
-    def add_tasks(self, *args):
-        if args is not None and args not in self.count_tasks:
-            self.count_tasks += args
-        return len(self.count_tasks)
+class Task():
+    def __init__(self, task):
+        self.task = task
+        self.tasks = self.add_task()
+        self.employees = []
+
+    def add_task(self):
+        all_task = []
+        if self.task not in all_task:
+            all_task.append(self.task)
+        return all_task
+
+    def __str__(self):
+        return f'Task is {self.tasks} - employee: {self.employees}'
 
 class Project():
     def __init__(self, name):
         self.name = name
         self.tasks_in_project = []
         self.employees = []
-        self.count_tasks = 0
-        self.count_employees = 0
 
-    def add_task_in_project(self, task=None):
-        if task is not None and task not in self.tasks_in_project:
-            self.tasks_in_project.append(task)
-            self.count_tasks += 1
-        return self.tasks_in_project
-
-    def add_employee(self, employee=None):
-        if employee is not None and employee not in self.employees:
-            self.employees.append(employee)
-            self.count_employees += 1
-        return self.employees
+    def add_task_in_project(self, *args):
+        for arg in args:
+            if isinstance(arg, Task):
+                self.tasks_in_project.append(arg.tasks)
+                self.employees.append(arg.employees)
+        return self.tasks_in_project, self.employees
 
     def __str__(self):
-        return f'Project is [{self.name}] - {self.count_tasks} tasks: {self.tasks_in_project}\n\t\t\t\t\t\t  {self.count_employees} employees: {self.employees}'
+        return (f'Проект: [{self.name}] - задачи проекта: {[i for elem in self.tasks_in_project for i in elem]}'
+                f' - список сотрудников: {list(set([i for elem in self.employees for i in elem]))}')
 
-class Task():
-    def __init__(self, task):
-        self.task = task
-        self.employees = []
-        self.tasks = []
-
-    def add_task(self, task, employee=None):
-        if task not in self.tasks:
-            self.tasks.append(task)
-        return self.tasks
-
-    def add_employee(self, employee=None):     № содержит ссылку на сотрудника, который её выполняет - НЕ МОГУ СДЕЛАТЬ ССЫЛКУ НА СОТРУДНИКА((
-        if employee is not None and employee not in self.employees:
-            self.employees.append(employee)
-
-    def __str__(self):
-        return f'Task is [{self.task}]. Employee: {self.employees}'
-
-employee1 = 'John'
-employee2 = 'Kate'
-employee3 = 'Ivan'
-employee4 = 'Pol'
-
-task_1 = 'закупка и поставка фейерверков'
-task_2 = 'закупка и поставка напитков'
-task_3 = 'поставка шариков'
-task_4 = 'создание игры'
-
-tester1 = Tester(employee1)
+tester1 = Tester('John')
 tester1.work()
-
-developer1 = Developer(employee2)
+developer1 = Developer('Kate')
 developer1.work()
-
-manager1 = Manager(employee3)
+manager1 = Manager('Ivan')
 manager1.work()
-
-leadDeveloper1 = LeadDeveloper(employee4)
+leadDeveloper1 = LeadDeveloper('Pol')
 leadDeveloper1.work()
 print()
 
-print(tester1.add_tasks(task_1, task_4, task_3))
-print(developer1.add_tasks(task_2, task_3))
+task1 = Task('закупка и поставка фейерверков')
+task2 = Task('закупка и поставка напитков')
+task3 = Task('поставка шариков')
+task4 = Task('создание игры')
 
-print(Employee.__gt__(developer1, tester1))
-print(Employee.__lt__(developer1, tester1))
-print(Employee.__eq__(tester1, developer1)) 
-
-print(manager1.add_tasks(task_1, task_2))
-print(manager1.add_tasks(task_3))
-
-print(Employee.__eq__(manager1,tester1))   # не работает сравнение на ==
-print(Employee.__gt__(manager1, developer1))
-
-
-task1 = Task(task_1)
-task1.add_task(task_1, None)
-task1.add_employee(employee1)
-task1.add_employee(employee2)
-print(task1)
-
-task2 = Task(task_2)
-task2.add_task(task_2, None)
-task2.add_employee(employee3)
-task2.add_employee(employee4)
-print(task2)
+print(tester1.add_tasks(task1, task2))
+print(developer1.add_tasks(task1, task3))
+print(manager1.add_tasks(task3, task4))
+print(leadDeveloper1.add_tasks(task1, task2, task3, task4))
 print()
 
-project1 = Project('Корпоратив')
-project1.add_task_in_project(task_1)
-project1.add_task_in_project(task_2)
-project1.add_employee(employee1)
-project1.add_employee(employee2)
-project1.add_employee(employee3)
-project1.add_employee(employee4)
+project1 = Project('КОРПОРАТИВ')
+project1.add_task_in_project(task1, task2)
 print(project1)
+print()
+
+print('******* СРАВНЕНИЕ КОЛИЧЕСТВА ЗАДАЧ *******:')
+print()
+print(tester1.count_tasks)
+print(developer1.count_tasks)
+print(Employee.__eq__(tester1, developer1))
+print(Employee.__gt__(developer1, tester1))
+print(Employee.__lt__(developer1, tester1))
+print()
+
+print('******* СРАВНЕНИЕ КОЛИЧЕСТВА ЗАДАЧ *******:')
+print()
+print(manager1.count_tasks)
+print(leadDeveloper1.count_tasks)
+print(Employee.__eq__(leadDeveloper1,manager1))
+print(Employee.__gt__(manager1, leadDeveloper1))
+print(Employee.__lt__(manager1, leadDeveloper1))
