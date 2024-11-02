@@ -33,6 +33,7 @@ class Employee(ABC):
                 if self.name not in arg.employees:
                     arg.employees.append(self.name)
             print(arg)
+        return '************************'
 
     def __eq__(self, other):
         return len(self.count_tasks) == len(other.count_tasks)
