@@ -19,9 +19,7 @@ class InfoMeta(type):
     def __new__(cls, name, bases, dct):
         def info(self):
             list_attr = {}
-            for name_attr, value in self.__dict__.items():
-                if name_attr.startswith('__'):
-                    continue
+            for name_attr, value in self.__dict__.items():                
                 if hasattr(value, 'info') and callable(value.info):
                     list_attr[name_attr] = value.info()
                 else:
