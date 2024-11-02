@@ -59,9 +59,6 @@ class Currency():
         return self.dict_codes
 
 class CurrencyConverter():
-    def __init__(self):
-        pass
-
     def converter_codes(self, from_code, to_code, amount=0):
         to_code = to_code.dict_codes
         from_code = from_code.dict_codes
